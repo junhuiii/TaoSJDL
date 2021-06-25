@@ -24,19 +24,20 @@ option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
 
 
-# Problem: Openpyxl doesn't read xls files, xlrd only reads xls files
 def read_xlsx_file(xlsx_file_path):
     wb = openpyxl.load_workbook(xlsx_file_path)
     ws = wb.active
     brand = ws['C2'].value
-    return brand
+    category = ws['D2'].value
+    return brand, category
 
 
 def read_xls_file(xls_file_path):
     wb = xlrd.open_workbook(xls_file_path)
     ws = wb.sheet_by_index(0)
     brand = ws.cell_value(rowx=1, colx=2)
-    return brand
+    category = ws.cell_value(rowx=1, colx=3)
+    return brand, category
 
 
 def click_xpath(html_xpath):
@@ -112,21 +113,35 @@ if __name__ == '__main__':
     len_list_of_xlsx = len(list_of_xlsx)
     print(f"Found {len_list_of_xlsx} SKUs to scrape.")
 
-    # Obtain SKU Ids from file names
+    # Obtain data regarding each SKU, outputs destination path(str) for downloading
     sku_id_regex = re.compile('\\\\([0-9]*).xls')
     list_sku_id = []
     brands = []
+    categories = []
     for filepath in list_of_xlsx:
+
+        sku_info = {}
+        # Get SKU_ID and put inside sku_info dictionary
         sku_id = sku_id_regex.search(filepath).group(1)
         list_sku_id.append(sku_id)
+        sku_info['sku_id'] = sku_id
+
+        # Get brand and put inside sku_info_dictionary
         try:
-            brand = read_xlsx_file(filepath)
+            brand, category = read_xlsx_file(filepath)
             brands.append(brand)
+            categories.append(category)
+            sku_info['brand'] = brand
+            sku_info['category'] = category
+
         except Exception:
-            brand = read_xls_file(filepath)
+            brand,category = read_xls_file(filepath)
             brands.append(brand)
-        # TODO: TAKE 2 LISTS AND FORM THE NEW FILEPATH TO SAVE FOLDER TO
-        # TODO: DATATYPE:DICTIONARY
+            categories.append(category)
+            sku_info['brand'] = brand
+            sku_info['category'] = category
+        #TODO: Clean up directory format, test on tf-es-dumpling script
+        #TODO: Based on brand and category, create a path to save the file to for a particular sku_id
 
     #Login Process
     driver = webdriver.Chrome('chromedriveedit.exe', options=option)

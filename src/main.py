@@ -1,5 +1,6 @@
 import time
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
 #Defined variables
@@ -17,7 +18,7 @@ option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
 
-def taosj_login_xpath(html_xpath):
+def click_xpath(html_xpath):
     element = driver.find_element_by_xpath(html_xpath)
     element.click()
 
@@ -29,10 +30,10 @@ def login_process():
     try:
         #Select country code
         country_xpath = '//*[@id="J_Mod_Login"]/form/div[2]/span'
-        taosj_login_xpath(country_xpath)
+        click_xpath(country_xpath)
 
         singapore_xpath = '//*[@id="J_Mod_Login"]/form/div[2]/div/p[6]'
-        taosj_login_xpath(singapore_xpath)
+        click_xpath(singapore_xpath)
 
         time.sleep(3)
 
@@ -47,8 +48,33 @@ def login_process():
 
         #Click on login button
         login = '//*[@id="T_Login"]'
-        taosj_login_xpath(login)
+        click_xpath(login)
         print("Log In Successful.")
+
+    except Exception as e:
+        print(e)
+
+def mouse_over(xpath):
+    element = driver.find_element_by_xpath(xpath)
+    hover = ActionChains(driver).move_to_element(element)
+    hover.perform()
+
+
+def shop_data():
+    try:
+        #Navigate to '找宝贝' Tab
+        china_services = '//*[@id="J_c-data-top"]/div/div[2]/ul/li[2]/div[2]'  # '国内电商‘ Element
+        mouse_over(china_services)
+
+        shop_data = '//*[@id="J_c-data-top"]/div/div[2]/ul/li[2]/div[3]/div/div[1]/a[3]'  # '店铺数据’ Element
+        click_xpath(shop_data)
+
+        time.sleep(5)
+
+        driver.switch_to.window(driver.window_handles[-1])
+        sku_lookup = '//*[@id="header"]/div/div[6]/div/div[1]/div/ul/li[2]/a'
+        click_xpath(sku_lookup)
+        print("Successfully Navigated to '找宝贝‘ Tab. ")
 
     except Exception as e:
         print(e)
@@ -62,6 +88,15 @@ if __name__ == '__main__':
     driver.get(login_url)
     wait = WebDriverWait(driver,10)
     login_process()
+
+    time.sleep(5)
+
+    shop_data()
+
+
+
+
+
 
 
 

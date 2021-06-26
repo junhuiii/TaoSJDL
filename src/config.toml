@@ -1,0 +1,5 @@
+#File destination path
+
+[file_dest]
+jn_fm = 'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Data\JN\FM'
+jn_sc = 'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Data\JN\SC'

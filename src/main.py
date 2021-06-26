@@ -3,15 +3,18 @@ import glob
 import re
 import openpyxl
 import xlrd
+import pytoml
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
-from openpyxl.utils import exceptions
 
 # Defined variables
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
 login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
 taosj_meta_data = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
+
+#config path
+CONFIG_PATH = 'config.toml'
 
 # Arguments for chrome webdriver
 option = webdriver.ChromeOptions()
@@ -23,6 +26,10 @@ option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
 
+#Read config.toml file
+def read_config(path):
+    config = pytoml.load(open(path, 'rb'))
+    return config
 
 def read_xlsx_file(xlsx_file_path):
     wb = openpyxl.load_workbook(xlsx_file_path)
@@ -38,6 +45,20 @@ def read_xls_file(xls_file_path):
     brand = ws.cell_value(rowx=1, colx=2)
     category = ws.cell_value(rowx=1, colx=3)
     return brand, category
+
+
+def sort_file_path(sku_dict, overall_sku_dict):
+    if sku_dict['brand'] == '久年':
+        if '花胶/鱼胶' in sku_dict['category']:
+            sku_dict['dest_path'] = config['file_dest']['jn_fm']
+            overall_sku_dict.append(sku_dict)
+
+        elif '海参' in sku_dict['category']:
+            sku_dict['dest_path'] = config['file_dest']['jn_sc']
+            overall_sku_dict.append(sku_dict)
+    else:
+        overall_sku_dict.append(sku_dict)
+    return overall_sku_dict
 
 
 def click_xpath(html_xpath):
@@ -104,7 +125,6 @@ def shop_data():
     except Exception as e:
         print(e)
 
-
 if __name__ == '__main__':
 
     # Obtain list of files containing SKU IDs to scrape from directory
@@ -118,6 +138,9 @@ if __name__ == '__main__':
     list_sku_id = []
     brands = []
     categories = []
+    overall_sku_info = []
+    config = read_config(CONFIG_PATH)
+
     for filepath in list_of_xlsx:
 
         sku_info = {}
@@ -140,10 +163,14 @@ if __name__ == '__main__':
             categories.append(category)
             sku_info['brand'] = brand
             sku_info['category'] = category
-        #TODO: Clean up directory format, test on tf-es-dumpling script
-        #TODO: Based on brand and category, create a path to save the file to for a particular sku_id
 
-    #Login Process
+        # Use sort_file_path function to add file dest paths to each ID
+        overall_sku_info = sort_file_path(sku_info,overall_sku_info)
+
+    # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
+    # File Destination Paths to download to
+
+    # Login Process using selenium starts here
     driver = webdriver.Chrome('chromedriveedit.exe', options=option)
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
@@ -154,5 +181,7 @@ if __name__ == '__main__':
 
     time.sleep(5)
 
-    #Navigate to '找宝贝' Tab
+    # Navigate to '找宝贝' Tab
     shop_data()
+
+

@@ -4,6 +4,7 @@ import re
 import openpyxl
 import xlrd
 import pytoml
+from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
@@ -13,7 +14,7 @@ login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
 login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
 taosj_meta_data = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
 
-#config path
+# config path
 CONFIG_PATH = 'config.toml'
 
 # Arguments for chrome webdriver
@@ -25,11 +26,14 @@ option.add_argument("""user-agent= Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
+prefs = {'download.default_directory' : r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'}
+option.add_experimental_option('prefs', prefs)
 
-#Read config.toml file
+# Read config.toml file
 def read_config(path):
     config = pytoml.load(open(path, 'rb'))
     return config
+
 
 def read_xlsx_file(xlsx_file_path):
     wb = openpyxl.load_workbook(xlsx_file_path)
@@ -71,6 +75,11 @@ def send_keys(html_xpath, key):
     element.send_keys(key)
 
 
+def clear_text_field(html_xpath):
+    element = driver.find_element_by_xpath(html_xpath)
+    element.clear()
+
+
 def login_process():
     try:
         # Select country code
@@ -105,7 +114,8 @@ def mouse_over(xpath):
     hover = ActionChains(driver).move_to_element(element)
     hover.perform()
 
-
+#TODO: Replace time.sleep with wait till element appears
+#TODO: Carry on with scraping of and downloading of website in separate function
 def shop_data():
     try:
         # Navigate to '找宝贝' Tab
@@ -124,6 +134,56 @@ def shop_data():
 
     except Exception as e:
         print(e)
+
+
+def scrape_sku(sku_id):
+    # Input sku_id into search bar
+    sku_input_field_xpath = '//*[@id="search"]'
+    send_keys(sku_input_field_xpath, sku_id)
+
+    # Click on search button
+    sku_search_button = '//*[@id="header"]/div/div[6]/div/div[1]/div/div/a'
+    click_xpath(sku_search_button)
+
+    time.sleep(5)
+
+    # Look for SKU in search results
+    # Error handling: Can either be found or not be found
+
+    try:
+        sku_exists = driver.find_element_by_xpath(f'//a[contains(@href,"//item.taobao.com/item.htm?id={sku_id}")]')
+        sku_data_button = driver.find_element_by_xpath('//*[@id="container"]/div/div[4]/div/div/div[2]/table/tbody/tr/td[7]/div/div/a')
+        print(f"{sku_id} exists. Found data on it.")
+        download_data(sku_data_button, sku_id)
+        driver.switch_to.window(driver.window_handles[-1])
+        clear_text_field(sku_input_field_xpath)
+
+    except NoSuchElementException:
+
+        try:
+            sku_no_exist = driver.find_element_by_xpath('//*[@id="container"]/div/div[4]/div/div/div[1]/form/div/span[1]')
+            print(f"{sku_id} does not exist.")
+            clear_text_field(sku_input_field_xpath)
+
+        except NoSuchElementException:
+            sku_no_exist = driver.find_element_by_xpath('//div[text()="暂无数据"]')
+            print(f"{sku_id} does not exist.")
+            clear_text_field(sku_input_field_xpath)
+
+
+def download_data(selenium_element, sku_id):
+    selenium_element.click()
+    time.sleep(5)
+    driver.switch_to.window(driver.window_handles[-1])
+
+    download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
+    click_xpath(download_button)
+    print(f"Downloading data for {sku_id}.....")
+    time.sleep(10)
+    print("Download completed.")
+
+    driver.close()
+    time.sleep(5)
 
 if __name__ == '__main__':
 
@@ -158,14 +218,14 @@ if __name__ == '__main__':
             sku_info['category'] = category
 
         except Exception:
-            brand,category = read_xls_file(filepath)
+            brand, category = read_xls_file(filepath)
             brands.append(brand)
             categories.append(category)
             sku_info['brand'] = brand
             sku_info['category'] = category
 
         # Use sort_file_path function to add file dest paths to each ID
-        overall_sku_info = sort_file_path(sku_info,overall_sku_info)
+        overall_sku_info = sort_file_path(sku_info, overall_sku_info)
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to
@@ -176,7 +236,7 @@ if __name__ == '__main__':
         "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
     })
     driver.get(login_url)
-    wait = WebDriverWait(driver,10)
+    wait = WebDriverWait(driver, 10)
     login_process()
 
     time.sleep(5)
@@ -184,4 +244,9 @@ if __name__ == '__main__':
     # Navigate to '找宝贝' Tab
     shop_data()
 
+    for sku in overall_sku_info:
+        taosj_sku_id = sku['sku_id']
+        taosj_brand = sku['brand']
 
+        if taosj_brand == '久年':
+            scrape_sku(taosj_sku_id)

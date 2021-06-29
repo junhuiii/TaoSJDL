@@ -1,15 +1,19 @@
-import time
 import glob
-import re
-import openpyxl
-import xlrd
-import pytoml
 import os
+import re
 import shutil
-from selenium.common.exceptions import NoSuchElementException
+import time
+
+import openpyxl
+import pytoml
+import xlrd
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 
 # Defined variables
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
@@ -29,8 +33,9 @@ option.add_argument("""user-agent= Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-prefs = {'download.default_directory' : r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'}
+prefs = {'download.default_directory': r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'}
 option.add_experimental_option('prefs', prefs)
+
 
 # Read config.toml file
 def read_config(path):
@@ -53,6 +58,7 @@ def read_xls_file(xls_file_path):
     category = ws.cell_value(rowx=1, colx=3)
     return brand, category
 
+
 # TODO: Edit function to include all brands based on config.toml
 def sort_file_path(sku_dict, overall_sku_dict):
     if sku_dict['brand'] == '久年':
@@ -69,17 +75,17 @@ def sort_file_path(sku_dict, overall_sku_dict):
 
 
 def click_xpath(html_xpath):
-    element = driver.find_element_by_xpath(html_xpath)
+    element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, html_xpath)))
     element.click()
 
 
 def send_keys(html_xpath, key):
-    element = driver.find_element_by_xpath(html_xpath)
+    element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, html_xpath)))
     element.send_keys(key)
 
 
 def clear_text_field(html_xpath):
-    element = driver.find_element_by_xpath(html_xpath)
+    element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, html_xpath)))
     element.clear()
 
 
@@ -113,11 +119,12 @@ def login_process():
 
 
 def mouse_over(xpath):
-    element = driver.find_element_by_xpath(xpath)
+    element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
     hover = ActionChains(driver).move_to_element(element)
     hover.perform()
 
-#TODO: Replace time.sleep with wait till element appears
+
+# TODO: Replace time.sleep with wait till element appears
 def shop_data():
     try:
         # Navigate to '找宝贝' Tab
@@ -154,7 +161,8 @@ def scrape_sku(sku_id):
 
     try:
         sku_exists = driver.find_element_by_xpath(f'//a[contains(@href,"//item.taobao.com/item.htm?id={sku_id}")]')
-        sku_data_button = driver.find_element_by_xpath('//*[@id="container"]/div/div[4]/div/div/div[2]/table/tbody/tr/td[7]/div/div/a')
+        sku_data_button = driver.find_element_by_xpath(
+            '//*[@id="container"]/div/div[4]/div/div/div[2]/table/tbody/tr/td[7]/div/div/a')
         print(f"{sku_id} exists. Found data on it.")
         download_data(sku_data_button, sku_id)
         driver.switch_to.window(driver.window_handles[-1])
@@ -163,7 +171,8 @@ def scrape_sku(sku_id):
     except NoSuchElementException:
 
         try:
-            sku_no_exist = driver.find_element_by_xpath('//*[@id="container"]/div/div[4]/div/div/div[1]/form/div/span[1]')
+            sku_no_exist = driver.find_element_by_xpath(
+                '//*[@id="container"]/div/div[4]/div/div/div[1]/form/div/span[1]')
             print(f"{sku_id} does not exist.")
             clear_text_field(sku_input_field_xpath)
 
@@ -172,30 +181,49 @@ def scrape_sku(sku_id):
             print(f"{sku_id} does not exist.")
             clear_text_field(sku_input_field_xpath)
 
+
 # TODO: Deal with long waiting time because of hanging, implement refresh function
 def download_data(selenium_element, sku_id):
     selenium_element.click()
     time.sleep(10)
     driver.switch_to.window(driver.window_handles[-1])
 
-    download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
-    click_xpath(download_button)
-    print(f"Downloading data for {sku_id}.....")
-    time.sleep(10)
-    print("Download completed.")
+    driver.implicitly_wait(30)
+    try:
+        download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
+        click_xpath(download_button)
+        print(f"Downloading data for {sku_id}.....")
+        wait_for_downloads()
+        time.sleep(10)
+        print("Download completed.")
+
+    except TimeoutException:
+        driver.refresh()
 
     driver.close()
     time.sleep(5)
 
+
+def wait_for_downloads():
+    print("Waiting for downloads", end="")
+    while any([filename.endswith(".crdownload") for filename in
+               os.listdir(download_dump_folder)]):
+        time.sleep(2)
+        print(".", end="")
+    print("done!")
+
+
 def read_directory(folder_path):
     search = folder_path + '\\*.xls'
-    list_files = glob.glob(search,recursive=True)
+    list_files = glob.glob(search, recursive=True)
     return list_files
+
 
 def rename_files(list_files):
     for files in list_files:
         pre, ext = os.path.splitext(files)
         os.rename(files, pre + '.xlsx')
+
 
 def shift_files(download_sku, old_file_path, list_of_dicts):
     for dicts in list_of_dicts:
@@ -204,6 +232,7 @@ def shift_files(download_sku, old_file_path, list_of_dicts):
             print(f"Shifting {download_sku} from {old_file_path} to {file_dest}...")
             shutil.copy(old_file_path, file_dest)
             print("Successfully copied.")
+
 
 if __name__ == '__main__':
 
@@ -268,7 +297,7 @@ if __name__ == '__main__':
         taosj_sku_id = sku['sku_id']
         taosj_brand = sku['brand']
 
-        #TODO: Edit to remove restriction on 'JN'
+        # TODO: Edit to remove restriction on 'JN'
         if taosj_brand == '久年':
             scrape_sku(taosj_sku_id)
 
@@ -278,11 +307,11 @@ if __name__ == '__main__':
     download_dump_files = read_directory(download_dump_folder)
 
     # Rename file type from xls to xlsx
-    #rename_files(download_dump_files)
+    # rename_files(download_dump_files)
     new_download_dump_files = read_directory(download_dump_folder)
 
     sku_id_regex_download = re.compile('_([0-9]*)_')
 
     for files in new_download_dump_files:
         sku_id_download = sku_id_regex_download.search(files).group(1)
-        shift_files(sku_id_download,files,overall_sku_info)
+        shift_files(sku_id_download, files, overall_sku_info)

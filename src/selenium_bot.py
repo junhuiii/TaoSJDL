@@ -4,6 +4,8 @@ import re
 import openpyxl
 import xlrd
 import pytoml
+import os
+import shutil
 from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
@@ -13,6 +15,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
 login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
 taosj_meta_data = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
+download_dump_folder = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'
 
 # config path
 CONFIG_PATH = 'config.toml'
@@ -50,7 +53,7 @@ def read_xls_file(xls_file_path):
     category = ws.cell_value(rowx=1, colx=3)
     return brand, category
 
-
+# TODO: Edit function to include all brands based on config.toml
 def sort_file_path(sku_dict, overall_sku_dict):
     if sku_dict['brand'] == '久年':
         if '花胶/鱼胶' in sku_dict['category']:
@@ -115,7 +118,6 @@ def mouse_over(xpath):
     hover.perform()
 
 #TODO: Replace time.sleep with wait till element appears
-#TODO: Carry on with scraping of and downloading of website in separate function
 def shop_data():
     try:
         # Navigate to '找宝贝' Tab
@@ -170,10 +172,10 @@ def scrape_sku(sku_id):
             print(f"{sku_id} does not exist.")
             clear_text_field(sku_input_field_xpath)
 
-
+# TODO: Deal with long waiting time because of hanging, implement refresh function
 def download_data(selenium_element, sku_id):
     selenium_element.click()
-    time.sleep(5)
+    time.sleep(10)
     driver.switch_to.window(driver.window_handles[-1])
 
     download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
@@ -184,6 +186,24 @@ def download_data(selenium_element, sku_id):
 
     driver.close()
     time.sleep(5)
+
+def read_directory(folder_path):
+    search = folder_path + '\\*.xls'
+    list_files = glob.glob(search,recursive=True)
+    return list_files
+
+def rename_files(list_files):
+    for files in list_files:
+        pre, ext = os.path.splitext(files)
+        os.rename(files, pre + '.xlsx')
+
+def shift_files(download_sku, old_file_path, list_of_dicts):
+    for dicts in list_of_dicts:
+        if dicts['sku_id'] == download_sku:
+            file_dest = dicts['dest_path']
+            print(f"Shifting {download_sku} from {old_file_path} to {file_dest}...")
+            shutil.copy(old_file_path, file_dest)
+            print("Successfully copied.")
 
 if __name__ == '__main__':
 
@@ -248,5 +268,21 @@ if __name__ == '__main__':
         taosj_sku_id = sku['sku_id']
         taosj_brand = sku['brand']
 
+        #TODO: Edit to remove restriction on 'JN'
         if taosj_brand == '久年':
             scrape_sku(taosj_sku_id)
+
+    # Download of files to download-dump completed
+
+    # Start shifting files to correct dest path
+    download_dump_files = read_directory(download_dump_folder)
+
+    # Rename file type from xls to xlsx
+    #rename_files(download_dump_files)
+    new_download_dump_files = read_directory(download_dump_folder)
+
+    sku_id_regex_download = re.compile('_([0-9]*)_')
+
+    for files in new_download_dump_files:
+        sku_id_download = sku_id_regex_download.search(files).group(1)
+        shift_files(sku_id_download,files,overall_sku_info)

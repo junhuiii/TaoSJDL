@@ -9,11 +9,11 @@ import pytoml
 import xlrd
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 # Defined variables
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
@@ -60,14 +60,67 @@ def read_xls_file(xls_file_path):
 
 
 # TODO: Edit function to include all brands based on config.toml
-def sort_file_path(sku_dict, overall_sku_dict):
-    if sku_dict['brand'] == '久年':
+def sort_file_path(sku_dict, overall_sku_dict, config):
+    if sku_dict['brand'] == '北海印象':
         if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config['file_dest']['jn_fm']
+            sku_dict['dest_path'] = config_file['file_dest']['bhyx_fm']
+
+    elif sku_dict['brand'] == '德叔鲍鱼':
+        if '鲍鱼' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['dsby_ab']
+
+    elif sku_dict['brand'] == '官栈':
+        if '花胶/鱼胶' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['gz_fm']
+
+    elif sku_dict['brand'] == '邻家燕':
+        if '海参' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['ljy_sc']
+
+    elif sku_dict['brand'] == '参王朝':
+        if '海参' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['swc_sc']
+
+    elif sku_dict['brand'] == '仙鹤岛':
+        if '海参' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['xhd_sc']
+
+    elif sku_dict['brand'] == '晓芹':
+        if '海参' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['xq_sc']
+
+    elif sku_dict['brand'] == '晓琴水产':
+        if '海参' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['xqsc_sc']
+
+    elif sku_dict['brand'] == '忆角巷':
+        if '花胶/鱼胶' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['yjx_fm']
+
+    elif sku_dict['brand'] == '燕印象':
+        if '燕窝' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['yyx_bn']
+            overall_sku_dict.append(sku_dict)
+
+        elif '花胶/鱼胶' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['yyx_fm']
+            overall_sku_dict.append(sku_dict)
+
+    elif sku_dict['brand'] == '燕之屋':
+        if '燕窝' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['yzw_bn']
+
+    elif sku_dict['brand'] == '正典燕窝':
+        if '燕窝' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['zdyw_bn']
+
+    elif sku_dict['brand'] == '久年':
+        if '花胶/鱼胶' in sku_dict['category']:
+            sku_dict['dest_path'] = config_file['file_dest']['jn_fm']
             overall_sku_dict.append(sku_dict)
 
         elif '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config['file_dest']['jn_sc']
+            sku_dict['dest_path'] = config_file['file_dest']['jn_sc']
             overall_sku_dict.append(sku_dict)
     else:
         overall_sku_dict.append(sku_dict)
@@ -248,7 +301,7 @@ if __name__ == '__main__':
     brands = []
     categories = []
     overall_sku_info = []
-    config = read_config(CONFIG_PATH)
+    config_file = read_config(CONFIG_PATH)
 
     for filepath in list_of_xlsx:
 
@@ -274,7 +327,7 @@ if __name__ == '__main__':
             sku_info['category'] = category
 
         # Use sort_file_path function to add file dest paths to each ID
-        overall_sku_info = sort_file_path(sku_info, overall_sku_info)
+        overall_sku_info = sort_file_path(sku_info, overall_sku_info, config_file)
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to

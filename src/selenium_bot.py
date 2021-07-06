@@ -1,8 +1,4 @@
-import glob
-import os
 import re
-import shutil
-import time
 
 import openpyxl
 import pytoml
@@ -15,6 +11,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+
+from file_sort import *
+from file_downloading import *
 
 # Defined variables
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
@@ -217,7 +216,7 @@ def scrape_sku(sku_id):
     sku_search_button = '//*[@id="header"]/div/div[6]/div/div[1]/div/div/a'
     click_xpath(sku_search_button)
 
-    time.sleep(3)
+    time.sleep(5)
 
     # Look for SKU in search results
     # Error handling: Can either be found or not be found
@@ -254,65 +253,31 @@ def download_data(selenium_element, sku_id):
     driver.implicitly_wait(30)
     download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
     try:
-        click_xpath(download_button)
         print(f"Downloading data for {sku_id}.....")
-        wait_for_downloads()
-        time.sleep(15)
-        print("Download completed.")
+        waiter = FileWaiter(download_dump_folder + '\\*.xls')
+        click_xpath(download_button)
+        result_of_download = waiter.wait_new_file(10)
+
+        while result_of_download == 'File did not download.':
+            print(f'{result_of_download}, trying again...')
+            click_xpath(download_button)
+            result_of_download = waiter.wait_new_file(10)
+            if result_of_download != 'File did not download.':
+                break
+        print(f'{result_of_download} has been downloaded.')
 
     except TimeoutException:
         driver.refresh()
-        click_xpath(download_button)
-        print(f"Downloading data for {sku_id}.....")
-        wait_for_downloads()
-        time.sleep(15)
-        print("Download completed.")
+        pass
 
-    driver.close()
     time.sleep(5)
+    driver.close()
 
 
 # TODO: Edit function to check if file actually downloads
-def wait_for_downloads():
-    print("Waiting for downloads", end="")
-    while any([filename.endswith(".crdownload") for filename in
-               os.listdir(download_dump_folder)]):
-        time.sleep(2)
-        print(".", end="")
-    print("done!")
-
-
-def read_directory(folder_path):
-    search = folder_path + '\\*.xls'
-    list_files = glob.glob(search, recursive=True)
-    return list_files
-
-
-def read_directory_xlsx(folder_path):
-    search = folder_path + '\\*.xlsx'
-    list_files = glob.glob(search, recursive=True)
-    return list_files
-
-
-def rename_files(list_files):
-    for files in list_files:
-        pre, ext = os.path.splitext(files)
-        os.rename(files, pre + '.xlsx')
-
-
-def shift_files(download_sku, old_file_path, list_of_dicts):
-    for dicts in list_of_dicts:
-        if dicts['sku_id'] == download_sku:
-            try:
-                file_dest = dicts['dest_path']
-                print(f"Shifting {download_sku} from {old_file_path} to {file_dest}...")
-                shutil.copy(old_file_path, file_dest)
-                print("Successfully copied.")
-            except KeyError:
-                print(dicts['sku_id'])
-                print(download_sku)
-                pass
-
+def wait_for_downloads(waiter):
+    file_downloading = waiter.wait_new_file(10)
+    return file_downloading
 
 if __name__ == '__main__':
 
@@ -368,7 +333,7 @@ if __name__ == '__main__':
     wait = WebDriverWait(driver, 10)
     login_process()
 
-    time.sleep(3)
+    time.sleep(5)
 
     # Navigate to '找宝贝' Tab
     shop_data()

@@ -196,15 +196,15 @@ def download_data(selenium_element, sku_id):
             print(f'{timeout} occurred. Will try again...')
             retries += 1
             pass
-        
+
     time.sleep(5)
     driver.close()
 
 
-# TODO: Edit function to check if file actually downloads
 def wait_for_downloads(waiter):
     file_downloading = waiter.wait_new_file(10)
     return file_downloading
+
 
 if __name__ == '__main__':
 
@@ -244,6 +244,7 @@ if __name__ == '__main__':
             categories.append(category)
             sku_info['brand'] = brand
             sku_info['category'] = category
+
         # Use sort_file_path function to add file dest paths to each ID
         sorter = FileSort(sku_info)
         overall_sku_info = sorter.sort_file_path(config_file, overall_sku_info)
@@ -291,3 +292,7 @@ if __name__ == '__main__':
         shift_files(sku_id_download, files, overall_sku_info)
 
 # TODO: Implement more try-catches to prevent errors
+
+# TODO: Implement counter if possible so that user can tell what SKU the bot is scraping
+
+# TODO: Expand sort_file_path for overall_sku_info

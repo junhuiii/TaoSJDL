@@ -12,8 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from file_sort import *
 from file_downloading import *
+from file_sort import *
 from sort_file_path import *
 
 # Defined variables
@@ -59,85 +59,6 @@ def read_xls_file(xls_file_path):
     brand = ws.cell_value(rowx=1, colx=2)
     category = ws.cell_value(rowx=1, colx=3)
     return brand, category
-
-
-# TODO: Edit function to include all brands based on config.toml
-# def sort_file_path(sku_dict, config_file, overall_sku_dict):
-#     if sku_dict['brand'] == '北海印象':
-#         if '花胶/鱼胶' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['bhyx_fm']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '德叔鲍鱼':
-#         if '鲍鱼' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['dsby_ab']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '官栈':
-#         if '花胶/鱼胶' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['gz_fm']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '邻家燕':
-#         if '海参' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['ljy_sc']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '参王朝':
-#         if '海参' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['swc_sc']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '仙鹤岛':
-#         if '海参' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['xhd_sc']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '晓芹':
-#         if '海参' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['xq_sc']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == 'xiaoqin aquatic product/晓琴水产':
-#         if '海参' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['xqsc_sc']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '忆角巷':
-#         if '花胶/鱼胶' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['yjx_fm']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '燕印象':
-#         if '燕窝' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['yyx_bn']
-#             overall_sku_dict.append(sku_dict)
-#
-#         elif '花胶/鱼胶' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['yyx_fm']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '燕之屋':
-#         if '燕窝' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['yzw_bn']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '正典燕窝':
-#         if '燕窝' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['zdyw_bn']
-#             overall_sku_dict.append(sku_dict)
-#
-#     elif sku_dict['brand'] == '久年':
-#         if '花胶/鱼胶' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['jn_fm']
-#             overall_sku_dict.append(sku_dict)
-#
-#         elif '海参' in sku_dict['category']:
-#             sku_dict['dest_path'] = config_file['file_dest']['jn_sc']
-#             overall_sku_dict.append(sku_dict)
-#     else:
-#         overall_sku_dict.append(sku_dict)
-#     return overall_sku_dict
 
 
 def click_xpath(html_xpath):
@@ -253,24 +174,29 @@ def download_data(selenium_element, sku_id):
 
     driver.implicitly_wait(30)
     download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
-    try:
-        print(f"Downloading data for {sku_id}.....")
-        waiter = FileWaiter(download_dump_folder + '\\*.xls')
-        click_xpath(download_button)
-        result_of_download = waiter.wait_new_file(10)
-
-        while result_of_download == 'File did not download.':
-            print(f'{result_of_download}, trying again...')
+    retries = 1
+    while retries <=5:
+        try:
+            print(f"Downloading data for {sku_id}.....")
+            waiter = FileWaiter(download_dump_folder + '\\*.xls')
             click_xpath(download_button)
             result_of_download = waiter.wait_new_file(10)
-            if result_of_download != 'File did not download.':
-                break
-        print(f'{result_of_download} has been downloaded.')
 
-    except TimeoutException:
-        driver.refresh()
-        pass
+            while result_of_download == 'File did not download.':
+                print(f'{result_of_download}, trying again...')
+                click_xpath(download_button)
+                result_of_download = waiter.wait_new_file(10)
+                if result_of_download != 'File did not download.':
+                    break
+            print(f'{result_of_download} has been downloaded.')
+            break
 
+        except TimeoutException as timeout:
+            driver.refresh()
+            print(f'{timeout} occurred. Will try again...')
+            retries += 1
+            pass
+        
     time.sleep(5)
     driver.close()
 
@@ -364,5 +290,4 @@ if __name__ == '__main__':
         sku_id_download = sku_id_regex_download.search(files).group(1)
         shift_files(sku_id_download, files, overall_sku_info)
 
-# TODO: Fix Selenium TIme out Issue
 # TODO: Implement more try-catches to prevent errors

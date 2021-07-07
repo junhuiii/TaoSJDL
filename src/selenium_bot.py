@@ -14,6 +14,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from file_sort import *
 from file_downloading import *
+from sort_file_path import *
 
 # Defined variables
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
@@ -61,82 +62,82 @@ def read_xls_file(xls_file_path):
 
 
 # TODO: Edit function to include all brands based on config.toml
-def sort_file_path(sku_dict, config_file, overall_sku_dict):
-    if sku_dict['brand'] == '北海印象':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['bhyx_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '德叔鲍鱼':
-        if '鲍鱼' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['dsby_ab']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '官栈':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['gz_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '邻家燕':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['ljy_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '参王朝':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['swc_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '仙鹤岛':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['xhd_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '晓芹':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['xq_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == 'xiaoqin aquatic product/晓琴水产':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['xqsc_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '忆角巷':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yjx_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '燕印象':
-        if '燕窝' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yyx_bn']
-            overall_sku_dict.append(sku_dict)
-
-        elif '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yyx_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '燕之屋':
-        if '燕窝' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yzw_bn']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '正典燕窝':
-        if '燕窝' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['zdyw_bn']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '久年':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['jn_fm']
-            overall_sku_dict.append(sku_dict)
-
-        elif '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['jn_sc']
-            overall_sku_dict.append(sku_dict)
-    else:
-        overall_sku_dict.append(sku_dict)
-    return overall_sku_dict
+# def sort_file_path(sku_dict, config_file, overall_sku_dict):
+#     if sku_dict['brand'] == '北海印象':
+#         if '花胶/鱼胶' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['bhyx_fm']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '德叔鲍鱼':
+#         if '鲍鱼' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['dsby_ab']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '官栈':
+#         if '花胶/鱼胶' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['gz_fm']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '邻家燕':
+#         if '海参' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['ljy_sc']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '参王朝':
+#         if '海参' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['swc_sc']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '仙鹤岛':
+#         if '海参' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['xhd_sc']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '晓芹':
+#         if '海参' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['xq_sc']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == 'xiaoqin aquatic product/晓琴水产':
+#         if '海参' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['xqsc_sc']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '忆角巷':
+#         if '花胶/鱼胶' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['yjx_fm']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '燕印象':
+#         if '燕窝' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['yyx_bn']
+#             overall_sku_dict.append(sku_dict)
+#
+#         elif '花胶/鱼胶' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['yyx_fm']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '燕之屋':
+#         if '燕窝' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['yzw_bn']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '正典燕窝':
+#         if '燕窝' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['zdyw_bn']
+#             overall_sku_dict.append(sku_dict)
+#
+#     elif sku_dict['brand'] == '久年':
+#         if '花胶/鱼胶' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['jn_fm']
+#             overall_sku_dict.append(sku_dict)
+#
+#         elif '海参' in sku_dict['category']:
+#             sku_dict['dest_path'] = config_file['file_dest']['jn_sc']
+#             overall_sku_dict.append(sku_dict)
+#     else:
+#         overall_sku_dict.append(sku_dict)
+#     return overall_sku_dict
 
 
 def click_xpath(html_xpath):
@@ -318,7 +319,8 @@ if __name__ == '__main__':
             sku_info['brand'] = brand
             sku_info['category'] = category
         # Use sort_file_path function to add file dest paths to each ID
-        overall_sku_info = sort_file_path(sku_info, config_file, overall_sku_info)
+        sorter = FileSort(sku_info)
+        overall_sku_info = sorter.sort_file_path(config_file, overall_sku_info)
         download_dump_files = read_directory(download_dump_folder)
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
@@ -363,5 +365,4 @@ if __name__ == '__main__':
         shift_files(sku_id_download, files, overall_sku_info)
 
 # TODO: Fix Selenium TIme out Issue
-# TODO: Fix issue where selenium doesn't download files
 # TODO: Implement more try-catches to prevent errors

@@ -267,13 +267,14 @@ if __name__ == '__main__':
     # Navigate to '找宝贝' Tab
     shop_data()
 
-    for sku in overall_sku_info:
+    for count, sku in enumerate(overall_sku_info, start=1):
             taosj_sku_id = sku['sku_id']
             # Check if sku has already been downloaded
             if any(taosj_sku_id in s for s in download_dump_files):
                 print(f'{taosj_sku_id} has already been downloaded. Will not download')
             else:
                 print(f'{taosj_sku_id} has not been downloaded. Will download now.')
+                print(f'Downloading file {count} out of {len_list_of_xlsx}')
                 scrape_sku(taosj_sku_id)
 
     # Download of files to download-dump completed

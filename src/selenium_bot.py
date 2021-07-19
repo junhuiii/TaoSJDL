@@ -19,8 +19,8 @@ from sort_file_path import *
 # Defined variables
 login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
 login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
-taosj_meta_data = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
-download_dump_folder = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'
+taosj_meta_data = r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
+download_dump_folder = r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\download-dump'
 
 # config path
 CONFIG_PATH = 'config.toml'
@@ -34,7 +34,7 @@ option.add_argument("""user-agent= Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-prefs = {'download.default_directory': r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'}
+prefs = {'download.default_directory': r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\download-dump'}
 option.add_experimental_option('prefs', prefs)
 option.add_argument("enable-features=NetworkServiceInProcess")
 
@@ -253,33 +253,33 @@ if __name__ == '__main__':
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to
 
-    # Login Process using selenium starts here
-    driver = webdriver.Chrome('chromedriveedit.exe', options=option)
-    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
-    })
-    driver.get(login_url)
-    wait = WebDriverWait(driver, 10)
-    login_process()
-
-    time.sleep(5)
-
-    # Navigate to '找宝贝' Tab
-    shop_data()
-
-    for count, sku in enumerate(overall_sku_info, start=1):
-            taosj_sku_id = sku['sku_id']
-            # Check if sku has already been downloaded
-            if any(taosj_sku_id in s for s in download_dump_files):
-                print(f'{taosj_sku_id} has already been downloaded. Will not download')
-            else:
-                print(f'{taosj_sku_id} has not been downloaded. Will download now.')
-                print(f'Downloading file {count} out of {len_list_of_xlsx}')
-                scrape_sku(taosj_sku_id)
+    # # Login Process using selenium starts here
+    # driver = webdriver.Chrome('chromedriveedit.exe', options=option)
+    # driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+    #     "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
+    # })
+    # driver.get(login_url)
+    # wait = WebDriverWait(driver, 10)
+    # login_process()
+    #
+    # time.sleep(5)
+    #
+    # # Navigate to '找宝贝' Tab
+    # shop_data()
+    #
+    # for count, sku in enumerate(overall_sku_info, start=1):
+    #         taosj_sku_id = sku['sku_id']
+    #         # Check if sku has already been downloaded
+    #         if any(taosj_sku_id in s for s in download_dump_files):
+    #             print(f'{taosj_sku_id} has already been downloaded. Will not download')
+    #         else:
+    #             print(f'{taosj_sku_id} has not been downloaded. Will download now.')
+    #             print(f'Downloading file {count} out of {len_list_of_xlsx}')
+    #             scrape_sku(taosj_sku_id)
 
     # Download of files to download-dump completed
 
-    # Start shifting files to correct dest path
+    # # Start shifting files to correct dest path
     download_dump_files = read_directory(download_dump_folder)
 
     # Rename file type from xls to xlsx

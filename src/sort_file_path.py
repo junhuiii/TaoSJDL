@@ -73,9 +73,9 @@ class FileSort:
                 self.info['dest_path'] = config['file_dest']['jn_fm']
                 overall_info.append(self.info)
 
-        elif '海参' in self.info['category']:
-            self.info['dest_path'] = config['file_dest']['jn_sc']
-            overall_info.append(self.info)
+            elif '海参' in self.info['category']:
+                self.info['dest_path'] = config['file_dest']['jn_sc']
+                overall_info.append(self.info)
         else:
             overall_info.append(self.info)
         return overall_info

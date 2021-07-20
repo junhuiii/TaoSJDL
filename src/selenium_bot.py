@@ -5,9 +5,9 @@ import pytoml
 import xlrd
 from openpyxl.utils.exceptions import InvalidFileException
 from selenium import webdriver
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -307,6 +307,6 @@ if __name__ == '__main__':
 
 # TODO: Implement more try-catches to prevent errors
 
-# TODO: Implement counter if possible so that user can tell what SKU the bot is scraping
+# TODO: Use logging module (Read up)
 
-# TODO: Expand sort_file_path for overall_sku_info
+# TODO: Try and make file paths dynamic use os module

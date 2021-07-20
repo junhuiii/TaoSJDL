@@ -7,6 +7,7 @@ from openpyxl.utils.exceptions import InvalidFileException
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -254,28 +255,40 @@ if __name__ == '__main__':
     # File Destination Paths to download to
 
     # # Login Process using selenium starts here
-    # driver = webdriver.Chrome('chromedriveedit.exe', options=option)
-    # driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-    #     "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
-    # })
-    # driver.get(login_url)
-    # wait = WebDriverWait(driver, 10)
-    # login_process()
-    #
-    # time.sleep(5)
-    #
-    # # Navigate to '找宝贝' Tab
-    # shop_data()
-    #
-    # for count, sku in enumerate(overall_sku_info, start=1):
-    #         taosj_sku_id = sku['sku_id']
-    #         # Check if sku has already been downloaded
-    #         if any(taosj_sku_id in s for s in download_dump_files):
-    #             print(f'{taosj_sku_id} has already been downloaded. Will not download')
-    #         else:
-    #             print(f'{taosj_sku_id} has not been downloaded. Will download now.')
-    #             print(f'Downloading file {count} out of {len_list_of_xlsx}')
-    #             scrape_sku(taosj_sku_id)
+    driver = webdriver.Chrome('chromedriveedit.exe', options=option)
+    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
+    })
+    driver.get(login_url)
+    wait = WebDriverWait(driver, 10)
+    login_process()
+
+    time.sleep(5)
+
+    # Navigate to '找宝贝' Tab
+    shop_data()
+
+    for count, sku in enumerate(overall_sku_info, start=1):
+        taosj_sku_id = sku['sku_id']
+        # Check if sku has already been downloaded
+        if any(taosj_sku_id in s for s in download_dump_files):
+            print(f'{taosj_sku_id} has already been downloaded. Will not download')
+        else:
+            print(f'{taosj_sku_id} has not been downloaded. Will download now.')
+            print(f'Downloading file {count} out of {len_list_of_xlsx}')
+            count = 0
+            max_tries = 3
+            while True:
+                try:
+                    scrape_sku(taosj_sku_id)
+                    break
+                except ElementClickInterceptedException as eleclickintercept:
+                    print(eleclickintercept)
+                    count += 1
+                    if count == max_tries:
+                        break
+                    else:
+                        continue
 
     # Download of files to download-dump completed
 

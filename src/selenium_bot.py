@@ -17,12 +17,6 @@ from file_downloading import *
 from file_sort import *
 from sort_file_path import *
 
-# Defined variables
-login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
-login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
-taosj_meta_data = r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
-download_dump_folder = r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\download-dump'
-
 # config path
 CONFIG_PATH = 'config.toml'
 
@@ -88,10 +82,10 @@ def login_process():
 
         # Input phone num and pw
         phone_num = '//*[@id="J_Mod_Login"]/form/div[2]/input'
-        send_keys(phone_num, login_payload['phone_num'])
+        send_keys(phone_num, config_file['defined_vars']['taosj_phone_num'])
 
         passw = '//*[@id="J_Mod_Login"]/form/div[3]/input'
-        send_keys(passw, login_payload['pw'])
+        send_keys(passw, config_file['defined_vars']['taosj_pw'])
 
         time.sleep(1)
 
@@ -179,7 +173,7 @@ def download_data(selenium_element, sku_id):
     while retries <=5:
         try:
             print(f"Downloading data for {sku_id}.....")
-            waiter = FileWaiter(download_dump_folder + '\\*.xls')
+            waiter = FileWaiter(config_file['defined_vars']['download_dump_folder'] + '\\*.xls')
             click_xpath(download_button)
             result_of_download = waiter.wait_new_file(10)
 
@@ -249,7 +243,7 @@ if __name__ == '__main__':
         # Use sort_file_path function to add file dest paths to each ID
         sorter = FileSort(sku_info)
         overall_sku_info = sorter.sort_file_path(config_file, overall_sku_info)
-        download_dump_files = read_directory(download_dump_folder)
+        download_dump_files = read_directory(config_file['defined_vars']['download_dump_folder'])
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to
@@ -259,7 +253,7 @@ if __name__ == '__main__':
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
     })
-    driver.get(login_url)
+    driver.get(config_file['defined_vars']['login_url'])
     wait = WebDriverWait(driver, 10)
     login_process()
 
@@ -293,11 +287,11 @@ if __name__ == '__main__':
     # Download of files to download-dump completed
 
     # # Start shifting files to correct dest path
-    download_dump_files = read_directory(download_dump_folder)
+    download_dump_files = read_directory(config_file['defined_vars']['download_dump_folder'])
 
     # Rename file type from xls to xlsx
     rename_files(download_dump_files)
-    new_download_dump_files = read_directory_xlsx(download_dump_folder)
+    new_download_dump_files = read_directory_xlsx(config_file['defined_vars']['download_dump_folder'])
 
     sku_id_regex_download = re.compile('_([0-9]*)_')
 

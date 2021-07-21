@@ -16,3 +16,11 @@ yyx_bn = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Data\YYX\BN'
 yyx_fm = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Data\YYX\FM'
 yzw_bn = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Data\YZW\BN'
 zdyw_bn = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Data\ZDYW\BN'
+
+
+[defined_vars]
+taosj_phone_num = '91784364'
+taosj_pw = 'fupin123'
+login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
+taosj_meta_data = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
+download_dump_folder = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\download-dump'

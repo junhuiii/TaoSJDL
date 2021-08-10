@@ -1,14 +1,11 @@
-import glob
-import os
 import re
-import shutil
-import time
 
 import openpyxl
 import pytoml
 import xlrd
 from openpyxl.utils.exceptions import InvalidFileException
 from selenium import webdriver
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
@@ -16,11 +13,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-# Defined variables
-login_payload = {'phone_num': '91784364', 'pw': 'fupin123'}
-login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
-taosj_meta_data = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
-download_dump_folder = r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'
+from file_downloading import *
+from file_sort import *
+from sort_file_path import *
 
 # config path
 CONFIG_PATH = 'config.toml'
@@ -34,7 +29,7 @@ option.add_argument("""user-agent= Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-prefs = {'download.default_directory': r'C:\Users\Dell\IdeaProjects\TaoSJDL\src\download-dump'}
+prefs = {'download.default_directory': r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\download-dump'}
 option.add_experimental_option('prefs', prefs)
 option.add_argument("enable-features=NetworkServiceInProcess")
 
@@ -59,85 +54,6 @@ def read_xls_file(xls_file_path):
     brand = ws.cell_value(rowx=1, colx=2)
     category = ws.cell_value(rowx=1, colx=3)
     return brand, category
-
-
-# TODO: Edit function to include all brands based on config.toml
-def sort_file_path(sku_dict, config_file, overall_sku_dict):
-    if sku_dict['brand'] == '北海印象':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['bhyx_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '德叔鲍鱼':
-        if '鲍鱼' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['dsby_ab']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '官栈':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['gz_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '邻家燕':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['ljy_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '参王朝':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['swc_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '仙鹤岛':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['xhd_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '晓芹':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['xq_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == 'xiaoqin aquatic product/晓琴水产':
-        if '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['xqsc_sc']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '忆角巷':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yjx_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '燕印象':
-        if '燕窝' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yyx_bn']
-            overall_sku_dict.append(sku_dict)
-
-        elif '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yyx_fm']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '燕之屋':
-        if '燕窝' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['yzw_bn']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '正典燕窝':
-        if '燕窝' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['zdyw_bn']
-            overall_sku_dict.append(sku_dict)
-
-    elif sku_dict['brand'] == '久年':
-        if '花胶/鱼胶' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['jn_fm']
-            overall_sku_dict.append(sku_dict)
-
-        elif '海参' in sku_dict['category']:
-            sku_dict['dest_path'] = config_file['file_dest']['jn_sc']
-            overall_sku_dict.append(sku_dict)
-    else:
-        overall_sku_dict.append(sku_dict)
-    return overall_sku_dict
 
 
 def click_xpath(html_xpath):
@@ -166,10 +82,10 @@ def login_process():
 
         # Input phone num and pw
         phone_num = '//*[@id="J_Mod_Login"]/form/div[2]/input'
-        send_keys(phone_num, login_payload['phone_num'])
+        send_keys(phone_num, config_file['defined_vars']['taosj_phone_num'])
 
         passw = '//*[@id="J_Mod_Login"]/form/div[3]/input'
-        send_keys(passw, login_payload['pw'])
+        send_keys(passw, config_file['defined_vars']['taosj_pw'])
 
         time.sleep(1)
 
@@ -217,7 +133,7 @@ def scrape_sku(sku_id):
     sku_search_button = '//*[@id="header"]/div/div[6]/div/div[1]/div/div/a'
     click_xpath(sku_search_button)
 
-    time.sleep(3)
+    time.sleep(5)
 
     # Look for SKU in search results
     # Error handling: Can either be found or not be found
@@ -253,65 +169,36 @@ def download_data(selenium_element, sku_id):
 
     driver.implicitly_wait(30)
     download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
-    try:
-        click_xpath(download_button)
-        print(f"Downloading data for {sku_id}.....")
-        wait_for_downloads()
-        time.sleep(15)
-        print("Download completed.")
+    retries = 1
+    while retries <=5:
+        try:
+            print(f"Downloading data for {sku_id}.....")
+            waiter = FileWaiter(config_file['defined_vars']['download_dump_folder'] + '\\*.xls')
+            click_xpath(download_button)
+            result_of_download = waiter.wait_new_file(10)
 
-    except TimeoutException:
-        driver.refresh()
-        click_xpath(download_button)
-        print(f"Downloading data for {sku_id}.....")
-        wait_for_downloads()
-        time.sleep(15)
-        print("Download completed.")
+            while result_of_download == 'File did not download.':
+                print(f'{result_of_download}, trying again...')
+                click_xpath(download_button)
+                result_of_download = waiter.wait_new_file(10)
+                if result_of_download != 'File did not download.':
+                    break
+            print(f'{result_of_download} has been downloaded.')
+            break
 
-    driver.close()
+        except TimeoutException as timeout:
+            driver.refresh()
+            print(f'{timeout} occurred. Will try again...')
+            retries += 1
+            pass
+
     time.sleep(5)
+    driver.close()
 
 
-# TODO: Edit function to check if file actually downloads
-def wait_for_downloads():
-    print("Waiting for downloads", end="")
-    while any([filename.endswith(".crdownload") for filename in
-               os.listdir(download_dump_folder)]):
-        time.sleep(2)
-        print(".", end="")
-    print("done!")
-
-
-def read_directory(folder_path):
-    search = folder_path + '\\*.xls'
-    list_files = glob.glob(search, recursive=True)
-    return list_files
-
-
-def read_directory_xlsx(folder_path):
-    search = folder_path + '\\*.xlsx'
-    list_files = glob.glob(search, recursive=True)
-    return list_files
-
-
-def rename_files(list_files):
-    for files in list_files:
-        pre, ext = os.path.splitext(files)
-        os.rename(files, pre + '.xlsx')
-
-
-def shift_files(download_sku, old_file_path, list_of_dicts):
-    for dicts in list_of_dicts:
-        if dicts['sku_id'] == download_sku:
-            try:
-                file_dest = dicts['dest_path']
-                print(f"Shifting {download_sku} from {old_file_path} to {file_dest}...")
-                shutil.copy(old_file_path, file_dest)
-                print("Successfully copied.")
-            except KeyError:
-                print(dicts['sku_id'])
-                print(download_sku)
-                pass
+def wait_for_downloads(waiter):
+    file_downloading = waiter.wait_new_file(10)
+    return file_downloading
 
 
 if __name__ == '__main__':
@@ -352,44 +239,59 @@ if __name__ == '__main__':
             categories.append(category)
             sku_info['brand'] = brand
             sku_info['category'] = category
+
         # Use sort_file_path function to add file dest paths to each ID
-        overall_sku_info = sort_file_path(sku_info, config_file, overall_sku_info)
-        download_dump_files = read_directory(download_dump_folder)
+        sorter = FileSort(sku_info)
+        overall_sku_info = sorter.sort_file_path(config_file, overall_sku_info)
+        download_dump_files = read_directory(config_file['defined_vars']['download_dump_folder'])
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to
 
-    # Login Process using selenium starts here
+    # # Login Process using selenium starts here
     driver = webdriver.Chrome('chromedriveedit.exe', options=option)
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
     })
-    driver.get(login_url)
+    driver.get(config_file['defined_vars']['login_url'])
     wait = WebDriverWait(driver, 10)
     login_process()
 
-    time.sleep(3)
+    time.sleep(5)
 
     # Navigate to '找宝贝' Tab
     shop_data()
 
-    for sku in overall_sku_info:
-            taosj_sku_id = sku['sku_id']
-            # Check if sku has already been downloaded
-            if any(taosj_sku_id in s for s in download_dump_files):
-                print(f'{taosj_sku_id} has already been downloaded. Will not download')
-            else:
-                print(f'{taosj_sku_id} has not been downloaded. Will download now.')
-                scrape_sku(taosj_sku_id)
+    for count, sku in enumerate(overall_sku_info, start=1):
+        taosj_sku_id = sku['sku_id']
+        # Check if sku has already been downloaded
+        if any(taosj_sku_id in s for s in download_dump_files):
+            print(f'{taosj_sku_id} has already been downloaded. Will not download')
+        else:
+            print(f'{taosj_sku_id} has not been downloaded. Will download now.')
+            print(f'Downloading file {count} out of {len_list_of_xlsx}')
+            count = 0
+            max_tries = 3
+            while True:
+                try:
+                    scrape_sku(taosj_sku_id)
+                    break
+                except ElementClickInterceptedException as eleclickintercept:
+                    print(eleclickintercept)
+                    count += 1
+                    if count == max_tries:
+                        break
+                    else:
+                        continue
 
     # Download of files to download-dump completed
 
-    # Start shifting files to correct dest path
-    download_dump_files = read_directory(download_dump_folder)
+    # # Start shifting files to correct dest path
+    download_dump_files = read_directory(config_file['defined_vars']['download_dump_folder'])
 
     # Rename file type from xls to xlsx
     rename_files(download_dump_files)
-    new_download_dump_files = read_directory_xlsx(download_dump_folder)
+    new_download_dump_files = read_directory_xlsx(config_file['defined_vars']['download_dump_folder'])
 
     sku_id_regex_download = re.compile('_([0-9]*)_')
 
@@ -397,6 +299,8 @@ if __name__ == '__main__':
         sku_id_download = sku_id_regex_download.search(files).group(1)
         shift_files(sku_id_download, files, overall_sku_info)
 
-# TODO: Fix Selenium TIme out Issue
-# TODO: Fix issue where selenium doesn't download files
 # TODO: Implement more try-catches to prevent errors
+
+# TODO: Use logging module (Read up)
+
+# TODO: Try and make file paths dynamic use os module

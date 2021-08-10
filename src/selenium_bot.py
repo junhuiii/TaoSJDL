@@ -184,7 +184,7 @@ def download_data(selenium_element, sku_id):
                 result_of_download = waiter.wait_new_file(10)
                 if result_of_download != 'File did not download.':
                     break
-            print(f'{result_of_download} has been downloaded.')
+            print(result_of_download)
             break
 
         except TimeoutException as timeout:

@@ -17,7 +17,11 @@ Scraper Bot that scrapes data from 淘数据
 * [Contact](#contact)
 
 ## General Information
-Test
+This project is part of my intern work at Teng Fuh Holdings Pte. Ltd. This scraper
+helps to automate the downloading process for my other project, which is to upload the
+downloaded data into a sqlite database for further data analysis. This project currently being
+updated, although the program already works. It has allowed me to download 400+ xls files
+from 淘数据 automatically, which saves me around 4 to 5 hours of manual work per week on average.
 
 ## Technologies Used
 Python

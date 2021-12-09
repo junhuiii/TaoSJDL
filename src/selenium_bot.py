@@ -248,59 +248,67 @@ if __name__ == '__main__':
         overall_sku_info = sorter.sort_file_path(config_file, overall_sku_info)
         download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
-    # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
-    # File Destination Paths to download to
-    # Login Process using selenium starts here
-    driver = webdriver.Chrome('chromedriveedit.exe', options=option)
-    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
-    })
-    driver.get(config_file['defined_vars']['login_url'])
-    wait = WebDriverWait(driver, 10)
-    login_process()
+    # End of file meta reading to get list of SKUs to scrape from TaoSJ and their destination paths to download to
+    # Ask user if they wish to download data from TaoSJ
+    ask_to_download = input("Would you like to download data from TaoSJ? (YES/NO): ")
 
-    time.sleep(5)
+    if ask_to_download == "YES":
+        # Login Process using selenium starts here
+        driver = webdriver.Chrome('chromedriveedit.exe', options=option)
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
+        })
+        driver.get(config_file['defined_vars']['login_url'])
+        wait = WebDriverWait(driver, 10)
+        login_process()
 
-    # Navigate to '找宝贝' Tab
-    shop_data()
+        time.sleep(5)
 
-    for count, sku in enumerate(overall_sku_info, start=1):
-        taosj_sku_id = sku['sku_id']
-        # Check if sku has already been downloaded
-        if any(taosj_sku_id in s for s in download_dump_files):
-            print(f'{taosj_sku_id} has already been downloaded. Will not download')
-        else:
-            print(f'{taosj_sku_id} has not been downloaded. Will download now.')
-            print(f'Downloading file {count} out of {len_list_of_xlsx}')
-            count = 0
-            max_tries = 3
-            while True:
-                try:
-                    scrape_sku(taosj_sku_id)
-                    break
-                except ElementClickInterceptedException as eleclickintercept:
-                    print(eleclickintercept)
-                    count += 1
-                    if count == max_tries:
+        # Navigate to '找宝贝' Tab
+        shop_data()
+
+        for count, sku in enumerate(overall_sku_info, start=1):
+            taosj_sku_id = sku['sku_id']
+            # Check if sku has already been downloaded
+            if any(taosj_sku_id in s for s in download_dump_files):
+                print(f'{taosj_sku_id} has already been downloaded. Will not download')
+            else:
+                print(f'{taosj_sku_id} has not been downloaded. Will download now.')
+                print(f'Downloading file {count} out of {len_list_of_xlsx}')
+                count = 0
+                max_tries = 3
+                while True:
+                    try:
+                        scrape_sku(taosj_sku_id)
                         break
-                    else:
-                        continue
-
-
+                    except ElementClickInterceptedException as eleclickintercept:
+                        print(eleclickintercept)
+                        count += 1
+                        if count == max_tries:
+                            break
+                        else:
+                            continue
+    else:
+        print("Downloading of data from TaoSJ will not begin.")
+        exit()
     # Download of files to download-dump completed
 
-    # # # Start shifting files to correct dest path
+    # Start shifting files to correct dest path
     download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
     # Rename file type from xls to xlsx
-    rename_files(download_dump_files)
-    new_download_dump_files = read_directory_xlsx(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
+    ask_to_rename = input("Do you want to rename the files? (YES/NO): ")
+    if ask_to_rename == 'YES':
+        rename_files(download_dump_files)
+        new_download_dump_files = read_directory_xlsx(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
-    sku_id_regex_download = re.compile('_([0-9]*)_')
+        sku_id_regex_download = re.compile('_([0-9]*)_')
 
-    for files in new_download_dump_files:
-        sku_id_download = sku_id_regex_download.search(files).group(1)
-        shift_files(sku_id_download, files, overall_sku_info)
+        for files in new_download_dump_files:
+            sku_id_download = sku_id_regex_download.search(files).group(1)
+            shift_files(sku_id_download, files, overall_sku_info)
+    else:
+        print("Files have not been renamed or copied over to TaoSJ Data.")
 
 # TODO: Implement more try-catches to prevent errors
 

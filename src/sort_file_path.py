@@ -1,6 +1,6 @@
 import os
 
-PROJECT_PATH = os.getcwd()
+PROJECT_PATH = os.getcwd()[:-4]
 
 class FileSort:
 
@@ -80,6 +80,16 @@ class FileSort:
             elif '海参' in self.info['category']:
                 self.info['dest_path'] = PROJECT_PATH + config['file_dest']['jn_sc']
                 overall_info.append(self.info)
+
+        elif self.info['brand'] == '东上御品':
+            if '海参' in self.info['category']:
+                self.info['dest_path'] = PROJECT_PATH + config['file_dest']['dsyp_sc']
+                overall_info.append(self.info)
+        elif self.info['brand'] == '极盏':
+            if '花胶/鱼胶' in self.info['category']:
+                self.info['dest_path'] = PROJECT_PATH + config['file_dest']['jz_fm']
+                overall_info.append(self.info)
+
         else:
             overall_info.append(self.info)
         return overall_info

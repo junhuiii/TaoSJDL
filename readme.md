@@ -16,3 +16,8 @@ Scraper Bot that scrapes data from 淘数据
 * [Acknowledgements](#acknowledgements)
 * [Contact](#contact)
 
+## General Information
+Test
+
+## Technologies Used
+Python

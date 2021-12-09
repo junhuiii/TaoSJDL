@@ -19,6 +19,7 @@ from sort_file_path import *
 
 # config path
 CONFIG_PATH = 'config.toml'
+PROJECT_PATH = os.getcwd()
 
 # Arguments for chrome webdriver
 option = webdriver.ChromeOptions()
@@ -29,7 +30,7 @@ option.add_argument("""user-agent= Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 option.add_argument("--incognito")
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 option.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-prefs = {'download.default_directory': r'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\download-dump'}
+prefs = {'download.default_directory': PROJECT_PATH + '\download-dump'}
 option.add_experimental_option('prefs', prefs)
 option.add_argument("enable-features=NetworkServiceInProcess")
 
@@ -173,7 +174,7 @@ def download_data(selenium_element, sku_id):
     while retries <=5:
         try:
             print(f"Downloading data for {sku_id}.....")
-            waiter = FileWaiter(config_file['defined_vars']['download_dump_folder'] + '\\*.xls')
+            waiter = FileWaiter(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'] + '\\*.xls')
             click_xpath(download_button)
             result_of_download = waiter.wait_new_file(10)
 
@@ -183,7 +184,7 @@ def download_data(selenium_element, sku_id):
                 result_of_download = waiter.wait_new_file(10)
                 if result_of_download != 'File did not download.':
                     break
-            print(f'{result_of_download} has been downloaded.')
+            print(result_of_download)
             break
 
         except TimeoutException as timeout:
@@ -243,7 +244,7 @@ if __name__ == '__main__':
         # Use sort_file_path function to add file dest paths to each ID
         sorter = FileSort(sku_info)
         overall_sku_info = sorter.sort_file_path(config_file, overall_sku_info)
-        download_dump_files = read_directory(config_file['defined_vars']['download_dump_folder'])
+        download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to
@@ -287,11 +288,11 @@ if __name__ == '__main__':
     # Download of files to download-dump completed
 
     # # Start shifting files to correct dest path
-    download_dump_files = read_directory(config_file['defined_vars']['download_dump_folder'])
+    download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
     # Rename file type from xls to xlsx
     rename_files(download_dump_files)
-    new_download_dump_files = read_directory_xlsx(config_file['defined_vars']['download_dump_folder'])
+    new_download_dump_files = read_directory_xlsx(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
     sku_id_regex_download = re.compile('_([0-9]*)_')
 

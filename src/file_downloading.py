@@ -20,7 +20,7 @@ class FileWaiter:
                 try:
                     os.rename(new_file, new_file)
                     self.files = set(glob.glob(self.path))
-                    msg = f'{new_file} has been downloaded'
+                    msg = f'{new_file} has been downloaded.'
                     return msg
                 except :
                     pass

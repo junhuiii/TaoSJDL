@@ -114,7 +114,7 @@ def shop_data():
         shop_data = '//*[@id="J_c-data-top"]/div/div[2]/ul/li[2]/div[3]/div/div[1]/a[3]'  # '店铺数据’ Element
         click_xpath(shop_data)
 
-        time.sleep(3)
+        time.sleep(10)
 
         driver.switch_to.window(driver.window_handles[-1])
         sku_lookup = '//*[@id="header"]/div/div[6]/div/div[1]/div/ul/li[2]/a'
@@ -126,15 +126,16 @@ def shop_data():
 
 
 def scrape_sku(sku_id):
+    time.sleep(4)
     # Input sku_id into search bar
     sku_input_field_xpath = '//*[@id="search"]'
     send_keys(sku_input_field_xpath, sku_id)
-
+    time.sleep(8)
     # Click on search button
     sku_search_button = '//*[@id="header"]/div/div[6]/div/div[1]/div/div/a'
     click_xpath(sku_search_button)
 
-    time.sleep(5)
+    time.sleep(2)
 
     # Look for SKU in search results
     # Error handling: Can either be found or not be found
@@ -151,13 +152,13 @@ def scrape_sku(sku_id):
     except NoSuchElementException:
 
         try:
-            sku_no_exist = driver.find_element_by_xpath(
-                '//*[@id="container"]/div/div[4]/div/div/div[1]/form/div/span[1]')
+            sku_no_exist = driver.find_element_by_xpath('//*[@id="container"]/div/div[4]/div/div/div[1]/form/div/span[1]')
             print(f"{sku_id} does not exist.")
             clear_text_field(sku_input_field_xpath)
 
         except NoSuchElementException:
             sku_no_exist = driver.find_element_by_xpath('//div[text()="暂无数据"]')
+            #sku_no_exist = driver.find_element_by_xpath('//*[@id="container"]/div/div[3]/div/div/form/div/p')
             print(f"{sku_id} does not exist.")
             clear_text_field(sku_input_field_xpath)
 
@@ -182,7 +183,8 @@ def download_data(selenium_element, sku_id):
                 print(f'{result_of_download}, trying again...')
                 click_xpath(download_button)
                 result_of_download = waiter.wait_new_file(10)
-                if result_of_download != 'File did not download.':
+                retries += 1
+                if result_of_download != 'File did not download.' or retries == 5:
                     break
             print(result_of_download)
             break
@@ -248,8 +250,7 @@ if __name__ == '__main__':
 
     # End of file meta reading to get list of SKUs to scrape from TaoSJ, as well as their
     # File Destination Paths to download to
-
-    # # Login Process using selenium starts here
+    # Login Process using selenium starts here
     driver = webdriver.Chrome('chromedriveedit.exe', options=option)
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
@@ -285,9 +286,10 @@ if __name__ == '__main__':
                     else:
                         continue
 
+
     # Download of files to download-dump completed
 
-    # # Start shifting files to correct dest path
+    # # # Start shifting files to correct dest path
     download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
     # Rename file type from xls to xlsx

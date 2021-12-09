@@ -16,6 +16,8 @@ yyx_bn = '\src\TaoSJ Data\YYX\BN'
 yyx_fm = '\src\TaoSJ Data\YYX\FM'
 yzw_bn = '\src\TaoSJ Data\YZW\BN'
 zdyw_bn = '\src\TaoSJ Data\ZDYW\BN'
+dsyp_sc = '\src\TaoSJ Data\DSYP\SC'
+jz_fm = '\src\TaoSJ Data\JZ\FM'
 
 
 [defined_vars]

@@ -4,8 +4,10 @@
 
 import glob
 import pytoml
-import datetime
+from datetime import date
 import os
+import shutil
+from pathlib import Path
 
 CONFIG_PATH = 'config.toml'
 
@@ -19,10 +21,15 @@ if __name__ == '__main__':
 
     # Move to TaoSJDL TaoSJ Data Directory
     config_file = read_config(CONFIG_PATH)
-    cwd = os.getcwd()
-    os.chdir(cwd + config_file['tf-es-dumping_integration']['TaoSJDL_TaoSJ_Data'])
+    copy_cwd = str(Path(os.getcwd()).parent)
+    os.chdir(os.getcwd() + config_file['tf-es-dumping_integration']['TaoSJDL_TaoSJ_Data'])
 
+    all_files = glob.glob("**/*", recursive=True)
 
+    # Move to tf-es-dumping TaoSJ Data
+    os.chdir("..\\..\\.." + config_file['tf-es-dumping_integration']['tf-es-dumping_TaoSJ_Data'])
+    backup_dest_path = copy_cwd + config_file['tf-es-dumping_integration']['TaoSJ_Data_backup']
+    #copy = shutil.copytree(os.getcwd(), backup_dest_path + "\\ Backup " + date.today().strftime('%Y-%m-%d'))
 
 # TODO: Scan TaoSJDL TaoSJ Data Directory to check that all files are in .xlsx format
 

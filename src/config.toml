@@ -28,6 +28,6 @@ taosj_meta_data = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
 download_dump_folder = '\download-dump'
 
 [tf-es-dumping_integration]
-tf-es-dumping_TaoSJ_Data = '\IdeaProjects\tf-es-dumping\TaoSJ Data'
+tf-es-dumping_TaoSJ_Data = '\tf-es-dumping\TaoSJ Data'
 TaoSJDL_TaoSJ_Data = '\TaoSJ Data'
 TaoSJ_Data_backup = '\tf-es-dumping (TaoSJ Data backup)'

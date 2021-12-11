@@ -31,10 +31,8 @@ if __name__ == '__main__':
     backup_dest_path = copy_cwd + config_file['tf-es-dumping_integration']['TaoSJ_Data_backup']
     #copy = shutil.copytree(os.getcwd(), backup_dest_path + "\\ Backup " + date.today().strftime('%Y-%m-%d'))
 
-# TODO: Scan TaoSJDL TaoSJ Data Directory to check that all files are in .xlsx format
+    # Move back to tf-es-dumping TaoSJ Data
+    #shutil.rmtree(os.getcwd())
 
-
-# TODO: If above condition fulfilled, then go to tf-es-dumping TaoSJ Data and move the entire folder to
-# TODO: tf-es-dumping (TaoSJ Data backup), creating a subfolder with the date in the process
-
-# TODo: Copy the TaoSJ Data from TAOSJDL over to tf-es-dumping TaoSJ Data, thereafter process is finished
+    test = print()
+    #copy2 = shuti.copytree(copy_cwd + config_file['tf-es-dumping_integration']['TaoSJDL_TaoSJ_Data'], os.getcwd())

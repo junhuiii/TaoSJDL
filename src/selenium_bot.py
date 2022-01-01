@@ -33,6 +33,7 @@ option.add_experimental_option("prefs", {"profile.managed_default_content_settin
 prefs = {'download.default_directory': PROJECT_PATH + '\download-dump'}
 option.add_experimental_option('prefs', prefs)
 option.add_argument("enable-features=NetworkServiceInProcess")
+option.add_argument("--window-size=1920,1080")
 
 
 # Read config.toml file
@@ -58,7 +59,7 @@ def read_xls_file(xls_file_path):
 
 
 def click_xpath(html_xpath):
-    element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, html_xpath)))
+    element = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, html_xpath)))
     element.click()
 
 
@@ -114,10 +115,11 @@ def shop_data():
         shop_data = '//*[@id="J_c-data-top"]/div/div[2]/ul/li[2]/div[3]/div/div[1]/a[3]'  # '店铺数据’ Element
         click_xpath(shop_data)
 
-        time.sleep(10)
+        time.sleep(8)
 
         driver.switch_to.window(driver.window_handles[-1])
         sku_lookup = '//*[@id="header"]/div/div[6]/div/div[1]/div/ul/li[2]/a'
+        time.sleep(3)
         click_xpath(sku_lookup)
         print("Successfully Navigated to '找宝贝‘ Tab. ")
 
@@ -126,11 +128,11 @@ def shop_data():
 
 
 def scrape_sku(sku_id):
-    time.sleep(4)
+    time.sleep(2)
     # Input sku_id into search bar
     sku_input_field_xpath = '//*[@id="search"]'
     send_keys(sku_input_field_xpath, sku_id)
-    time.sleep(8)
+    time.sleep(5)
     # Click on search button
     sku_search_button = '//*[@id="header"]/div/div[6]/div/div[1]/div/div/a'
     click_xpath(sku_search_button)
@@ -166,10 +168,11 @@ def scrape_sku(sku_id):
 # TODO: Deal with long waiting time because of hanging, implement refresh function
 def download_data(selenium_element, sku_id):
     selenium_element.click()
-    time.sleep(5)
+    time.sleep(3)
     driver.switch_to.window(driver.window_handles[-1])
 
     driver.implicitly_wait(30)
+    time.sleep(5)
     download_button = '//*[@id="itemMain"]/div/div[4]/div/div[1]/a'
     retries = 1
     while retries <=5:
@@ -177,12 +180,12 @@ def download_data(selenium_element, sku_id):
             print(f"Downloading data for {sku_id}.....")
             waiter = FileWaiter(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'] + '\\*.xls')
             click_xpath(download_button)
-            result_of_download = waiter.wait_new_file(10)
+            result_of_download = waiter.wait_new_file(15)
 
             while result_of_download == 'File did not download.':
                 print(f'{result_of_download}, trying again...')
                 click_xpath(download_button)
-                result_of_download = waiter.wait_new_file(10)
+                result_of_download = waiter.wait_new_file(15)
                 retries += 1
                 if result_of_download != 'File did not download.' or retries == 5:
                     break
@@ -195,7 +198,7 @@ def download_data(selenium_element, sku_id):
             retries += 1
             pass
 
-    time.sleep(5)
+    time.sleep(10)
     driver.close()
 
 
@@ -262,7 +265,7 @@ if __name__ == '__main__':
         wait = WebDriverWait(driver, 10)
         login_process()
 
-        time.sleep(5)
+        time.sleep(10)
 
         # Navigate to '找宝贝' Tab
         shop_data()
@@ -290,15 +293,16 @@ if __name__ == '__main__':
                             continue
     else:
         print("Downloading of data from TaoSJ will not begin.")
-        exit()
     # Download of files to download-dump completed
 
     # Start shifting files to correct dest path
-    download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
+    ask_to_rename = input("Do you want to rename the files? (YES/NO): ")
 
     # Rename file type from xls to xlsx
-    ask_to_rename = input("Do you want to rename the files? (YES/NO): ")
+
     if ask_to_rename == 'YES':
+        download_dump_files = read_directory(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
+
         rename_files(download_dump_files)
         new_download_dump_files = read_directory_xlsx(PROJECT_PATH + config_file['defined_vars']['download_dump_folder'])
 
@@ -308,7 +312,8 @@ if __name__ == '__main__':
             sku_id_download = sku_id_regex_download.search(files).group(1)
             shift_files(sku_id_download, files, overall_sku_info)
     else:
-        print("Files have not been renamed or copied over to TaoSJ Data.")
+        print("Files have not been renamed and copied over to TaoSJ Data.")
+        exit()
 
 # TODO: Implement more try-catches to prevent errors
 

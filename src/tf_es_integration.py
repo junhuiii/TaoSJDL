@@ -2,7 +2,6 @@
 # TaoSJDL. Before doing this, the tf-es-dumping TaoSJ Data Directory will be copied to the TaoSJDL backup
 # directory to serve as backup in case any corruption of files happens
 
-import glob
 import pytoml
 from datetime import date
 import os

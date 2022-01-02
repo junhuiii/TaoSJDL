@@ -39,15 +39,20 @@ if __name__ == '__main__':
     os.chdir("..\\..\\.." + config_file['tf-es-dumping_integration']['tf-es-dumping_TaoSJ_Data'])
     backup_dest_path = copy_cwd + config_file['tf-es-dumping_integration']['TaoSJ_Data_backup']
     copy = shutil.copytree(os.getcwd(), backup_dest_path + "\\ Backup " + date.today().strftime('%Y-%m-%d'))
-    print("Completed 1")
+    print("Folder created. Successfully created backup.")
 
     # Delete files in tf-es-dumping TaoSJ Data
     for direct in os.listdir(os.getcwd()):
+        print(f'Deleting {direct} from tf-es-dumping...')
         shutil.rmtree(os.getcwd() + f'\\{direct}', ignore_errors=False, onerror=handleRemoveReadonly)
-    print("Completed 2")
+        print("Completed.")
+    print("All folders deleted within tf-es-dumping, proceeding to copy updated data...")
 
     # Copy files from TaoSJDL TaoSJData to tf-es-dumping TaoSJ Data
     for directory in os.listdir(copy_cwd + "\\src" + config_file['tf-es-dumping_integration']['TaoSJDL_TaoSJ_Data']):
-        print(os.getcwd())
+        print("Copying...")
         print(copy_cwd + "\\src" + config_file['tf-es-dumping_integration']['TaoSJDL_TaoSJ_Data'] + f"\\{directory}")
         shutil.copytree(copy_cwd + "\\src" + config_file['tf-es-dumping_integration']['TaoSJDL_TaoSJ_Data'] + f"\\{directory}", os.getcwd() + f"\\{directory}")
+        print("Completed.")
+
+    print("All folders copied over from TaoSJDL TaoSJData to tf-es-dumping TaoSJ Data. Entire process completed successfully.")

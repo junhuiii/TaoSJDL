@@ -19,10 +19,16 @@ zdyw_bn = '\src\TaoSJ Data\ZDYW\BN'
 dsyp_sc = '\src\TaoSJ Data\DSYP\SC'
 jz_fm = '\src\TaoSJ Data\JZ\FM'
 
-
+# Login details and link, together with main folder paths
 [defined_vars]
 taosj_phone_num = '91784364'
 taosj_pw = 'fupin123'
 login_url = 'https://login.taosj.com/?redirectURL=https%3A%2F%2Fwww.taosj.com%2F'
 taosj_meta_data = 'C:\Users\aujh1\IdeaProjects\TaoSJDL\src\TaoSJ Meta'
 download_dump_folder = '\download-dump'
+
+# File paths to tf-es-dumping repository
+[tf-es-dumping_integration]
+tf-es-dumping_TaoSJ_Data = '\tf-es-dumping\TaoSJ Data'
+TaoSJDL_TaoSJ_Data = '\TaoSJ Data'
+TaoSJ_Data_backup = '\tf-es-dumping (TaoSJ Data backup)'

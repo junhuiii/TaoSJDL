@@ -28,10 +28,17 @@ from [淘数据](https://taosj.com/) automatically, which saves me around 5 to 6
 ## Screenshots
 
 ## Setup
+* Upon cloning the repository, 4 directories need to be created, namely
+    * /src/TaoSJ Meta/
+    * /src/download-dump/
+    * /tf-es-dumping (TaoSJ Data backup)/
+    * /src/TaoSJ Data/
+* Proceed to config.toml and input the relevant login details for the 淘数据 account. You will have to purchase the service. This is not a free scraper.
 
 ## Usage
 
 ## Project Status
+* As of 03/01/2022
 * For personal use
 * In the midst of refactoring and cleaning up code
 

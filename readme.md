@@ -1,6 +1,6 @@
 # 淘数据 Scraper
  <hr />
-Scraper Bot that scrapes data from 淘数据
+Scraper Bot that scrapes data from [淘数据](https://taosj.com/)
 
 ## Table of Contents
  <hr />
@@ -26,9 +26,17 @@ from [淘数据](https://taosj.com/) automatically, which saves me around 5 to 6
 * Links with tf-es-dumping repository which creates a backup of the files in 'tf-es-dumping(TaoSJ Data backup)' before deleting and updating the TaoSJ Data directory in tf-es-dumping repository with the new TaoSJ Data folders
 
 ## Screenshots
+
 ## Setup
+
 ## Usage
+
 ## Project Status
+* For personal use
+* In the midst of refactoring and cleaning up code
+
 ## Room for Improvement
+
 ## Contact
+* Do drop me an email at aujunhui88@gmail.com for any suggestions or improvements to the project
 

@@ -1,6 +1,6 @@
 # 淘数据 Scraper
  <hr />
-Scraper Bot that scrapes data from [淘数据](https://taosj.com/)
+Scraper Bot that scrapes data from 淘数据
 
 ## Table of Contents
  <hr />
@@ -34,15 +34,30 @@ from [淘数据](https://taosj.com/) automatically, which saves me around 5 to 6
     * /tf-es-dumping (TaoSJ Data backup)/
     * /src/TaoSJ Data/
 * Proceed to config.toml and input the relevant login details for the 淘数据 account. You will have to purchase the service. This is not a free scraper.
+* For each product, a xlsx/xls file must be created in the 'TaoSJ Meta' Directory with the information of the product, namely
+  * Product Name
+  * Product ID
+  * Product
+  * Brand
+  * Category
+* Refer to <folder> for sample product information
+* Relevant brand folder must also be created in 'TaoSJ Data' Directory, reference the brand and if it is of a different category, a new sub-directory as well
+* This path must then be updated in config.toml under file_dest
 
 ## Usage
+* In order to start the scraper, one has to run the selenium_bot.py file, which will look for all the Product-IDs of the products that you have created in 'TaoSJ Meta' directory, before asking for confirmation to scrape the data
+* The scraper will then run until all the available products' revenue data has been downloaded, before asking the user for permission to rename and update the TaoSJ Data folder accordingly
+* When ready to update the data in tf-es-dumping, open the tf_es_integration.py folder and run the script, it will create a backup of the data present in tf-es-dumping/TaoSJ Data/, before deleting and copying over the updated information
+* This will then allow you to use the data and update the sqlite database in tf-es-dumping and proceed on with storing the data for extraction and analysis.
 
 ## Project Status
-* As of 03/01/2022
+* Updated as of 03/01/2022
 * For personal use
 * In the midst of refactoring and cleaning up code
 
 ## Room for Improvement
+* Automate setup procedure
+* Implement logging
 
 ## Contact
 * Do drop me an email at aujunhui88@gmail.com for any suggestions or improvements to the project

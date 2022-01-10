@@ -14,7 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from file_downloading import *
-from file_sort import *
+from move_files import *
 from sort_file_path import *
 
 # config path

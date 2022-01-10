@@ -26,7 +26,9 @@ from [淘数据](https://taosj.com/) automatically, which saves me around 5 to 6
 * Links with tf-es-dumping repository which creates a backup of the files in 'tf-es-dumping(TaoSJ Data backup)' before deleting and updating the TaoSJ Data directory in tf-es-dumping repository with the new TaoSJ Data folders
 
 ## Screenshots
-
+* Script asks for user confirmation to start the selenium bot to login and scrape from 淘数据 ![Start selenium bot](screenshots/files_downloaded_to_TaoSJ_Data.png?raw=true)
+* Selenium bot will atuomatically login to 淘数据 based on user provided credentials and start scraping based on meta files created in 'TaoSJ Meta' Directory ![Selenium bot downloading](screenshots/selenium_bot.png?raw=true)
+* Files will then be downloaded into 'TaoSJ Data' Directory, and a print statement will be shown in the console. ![Files downloaded](screenshots/scraping_from_taosj.png?raw=true)
 ## Setup
 * Upon cloning the repository, 4 directories need to be created, namely
     * /src/TaoSJ Meta/
